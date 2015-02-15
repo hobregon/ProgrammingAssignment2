@@ -40,7 +40,9 @@ cacheSolve <- function(x, ...) {
      ## Note that because of the ... optional arglist
      ## cacheSolve in fact could be used to cache any result
      ## of the R solve function, not only the case of a matrix inversion.
-     ## This could create cunfusion for the user of this function.
+     ## This could create problems for the user of this function
+     ## if the function is called a second time with a different ... arglist
+     ## it is likely that the returned cached result will be incorrect.
      ## The same problem applies to the sample cacheMean function
      ## provided in the problem docs.
      i <- solve(data, ...)
