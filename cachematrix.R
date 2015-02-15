@@ -4,7 +4,7 @@
 ##                  with a single arg).
 
 ## makeCacheMatrix follows the same logic as in the
-## vector sample provided in the materials with a fw changes.
+## vector sample provided in the materials with a few changes.
 ## I modified the provided vector sample for the inverse matrix case
 ## and improved it so that it correctly handles changes
 ## in the ellipsis (...) arguments received in the call
@@ -12,30 +12,30 @@
 ## the ellipsis arguments change.
 
 makeCacheMatrix <- function(x = matrix()) {
-     ## i stores the inverse matrix of x (after it's set in cacheSolve below)
-     i <- NULL
+     ## sr stores the result of a called solve function
+     sr <- NULL
      ##cachedcallargs is used to cache the args list 
      cachedcallargs <- list()
      set <- function(y) {
           x <<- y
-          i <<- NULL
+          sr <<- NULL
           cachedccallargs <<- list()
      }
      get <- function() x
      ## these two functions set & get the inverse matrix from the cache
-     setinversematrix <- function(inversematrix, ...) {
-          i <<- inversematrix
+     setsolveresult <- function(solveresult, ...) {
+          sr <<- solveresult
           cachedcallargs <<- list(...)
      }
-     getinversematrix <- function(...){ 
+     getsolveresult <- function(...){ 
           if( identical( cachedcallargs, list(...)))
-               return(i)
+               return(sr)
           else
                NULL
      }
      list(set = set, get = get,
-          setinversematrix = setinversematrix,
-          getinversematrix = getinversematrix)
+          setsolveresult = setsolveresult,
+          getsolveresult = getsolveresult)
 }
 
 
@@ -49,14 +49,14 @@ makeCacheMatrix <- function(x = matrix()) {
 
 cacheSolve <- function(x, ...) {
      ## Return a matrix that is the inverse of 'x'
-     i <- x$getinversematrix(...)
+     i <- x$getsolveresult(...)
      if(!is.null(i)) {
           message("getting cached data")
           return(i)
      }
      data <- x$get()
      i <- solve(data, ...)
-     x$setinversematrix(i,...)
+     x$setsolveresult(i,...)
      i
      
 }
