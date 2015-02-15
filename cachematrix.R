@@ -1,52 +1,62 @@
 ## makeCacheMatrix: Takes a matrix and returns a list of functions
 ##                  to get/set it's value and get/set the value of 
-##                  inverse matrix.
-
-## cacheSolve:      Expects a makeCacheMatrix list and returns
-##                  it's inverse. It fetches the inverse from the
-##                  cache if available.
+##                  a solve function call (inverse matrix when called
+##                  with a single arg).
 
 ## makeCacheMatrix follows the same logic as in the
-## vector sample provided in the materials
-## I modified the sample simply for the inverse matrix case
+## vector sample provided in the materials with a fw changes.
+## I modified the provided vector sample for the inverse matrix case
+## and improved it so that it correctly handles changes
+## in the ellipsis (...) arguments received in the call
+## so that it doesn't return an invalid cached result when
+## the ellipsis arguments change.
 
 makeCacheMatrix <- function(x = matrix()) {
      ## i stores the inverse matrix of x (after it's set in cacheSolve below)
      i <- NULL
+     ##cachedcallargs is used to cache the args list 
+     cachedcallargs <- list()
      set <- function(y) {
           x <<- y
           i <<- NULL
+          cachedccallargs <<- list()
      }
      get <- function() x
      ## these two functions set & get the inverse matrix from the cache
-     setinversematrix <- function(inversematrix) i <<- inversematrix
-     getinversematrix <- function() i
+     setinversematrix <- function(inversematrix, ...) {
+          i <<- inversematrix
+          cachedcallargs <<- list(...)
+     }
+     getinversematrix <- function(...){ 
+          if( identical( cachedcallargs, list(...)))
+               return(i)
+          else
+               NULL
+     }
      list(set = set, get = get,
           setinversematrix = setinversematrix,
           getinversematrix = getinversematrix)
 }
 
 
-## Write a short comment describing this function
+## cacheSolve:      Expects a makeCacheMatrix list and returns
+##                  the output of the solve function.
+##                  (inverse matrix when called
+##                  with a single arg).
+##                  It fetches the result from the
+##                  cache if available and if the (...) 
+##                  args did not change.
 
 cacheSolve <- function(x, ...) {
      ## Return a matrix that is the inverse of 'x'
-     i <- x$getinversematrix()
+     i <- x$getinversematrix(...)
      if(!is.null(i)) {
           message("getting cached data")
           return(i)
      }
      data <- x$get()
-     ## Note that because of the ... optional arglist
-     ## cacheSolve in fact could be used to cache any result
-     ## of the R solve function, not only the case of a matrix inversion.
-     ## This could create problems for the user of this function
-     ## if the function is called a second time with a different ... arglist
-     ## it is likely that the returned cached result will be incorrect.
-     ## The same problem applies to the sample cacheMean function
-     ## provided in the problem docs.
      i <- solve(data, ...)
-     x$setinversematrix(i)
+     x$setinversematrix(i,...)
      i
      
 }
